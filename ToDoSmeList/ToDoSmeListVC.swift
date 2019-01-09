@@ -44,6 +44,35 @@ class ToDoSmeListVC: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
         
     }
-
+    
+    //MARK: -ACTIONS
+    
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField: UITextField!
+        
+        let addAlert = UIAlertController(title: "Add New Item", message: "", preferredStyle: UIAlertController.Style.alert)
+        
+        let add =  UIAlertAction(title: "Add", style: UIAlertAction.Style.default) { (add) in
+            if textField.text!.isEmpty{
+                textField.layer.borderColor =  UIColor.red.cgColor
+            }else{
+                self.listArray.append(textField.text!)
+            }
+            self.tableView.reloadData()
+        }
+        
+        addAlert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+        }
+        
+        addAlert.addAction(add)
+        
+        present(addAlert, animated: true, completion: nil)
+        
+    }
+    
 }
 
