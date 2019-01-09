@@ -10,11 +10,13 @@ import UIKit
 
 class ToDoSmeListVC: UITableViewController {
     
-    var listArray =  ["To buy apples", "To buy cream",]
+    var listArray: [String] = ["buy peraples"]
+    let userDefaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        listArray = userDefaults.array(forKey: "ToDoListArray") as! [String]
     }
 
     //MARK: - TABLEVIEW DATASOURCE
@@ -60,6 +62,8 @@ class ToDoSmeListVC: UITableViewController {
             }else{
                 self.listArray.append(textField.text!)
             }
+            self.userDefaults.set(self.listArray, forKey: "ToDoListArray")
+
             self.tableView.reloadData()
         }
         
