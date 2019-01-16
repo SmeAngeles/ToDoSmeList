@@ -7,37 +7,21 @@
 //
 
 import UIKit
+import CoreData
 
 class ToDoSmeListVC: UITableViewController {
     
     var listArray = [Item]()
     
-    
-    let dataFilePath = FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: FileManager.SearchPathDomainMask.userDomainMask).first?.appendingPathComponent("toDoListItems.plist")
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
     
     //let userDefaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSLog("\(dataFilePath!)")
-        
-//        let newItem = Item()
-//        newItem.title = "Buy peraples"
-//        listArray.append(newItem)
-//
-//        let newItem2 = Item()
-//        newItem2.title = "Buy apples"
-//        listArray.append(newItem2)
-//
-//
-//        let newItem3 =  Item()
-//        newItem3.title =  "Buy coffe"
-//        listArray.append(newItem3)
-
-        //if let items = userDefaults.array(forKey: "ToDoListArray") as? [Item]{
-        //    listArray = items
-        //}
+        NSLog("\(FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: FileManager.SearchPathDomainMask.userDomainMask))")
         
         loadItems()
     }
@@ -83,20 +67,17 @@ class ToDoSmeListVC: UITableViewController {
         
         let add =  UIAlertAction(title: "Add", style: UIAlertAction.Style.default) { (add) in
             
-            let newItem = Item()
-  
+            
+            let newItem = Item(context: self.context)
             
             if textField.text!.isEmpty{
                 textField.layer.borderColor =  UIColor.red.cgColor
             }else{
                  newItem.title = textField.text!
+                 newItem.done = false
                 self.listArray.append(newItem)
+                self.saveItems()
             }
-            
-            //self.userDefaults.set(self.listArray, forKey: "ToDoListArray")
-            
-            self.saveItems()
-
         }
         
         addAlert.addTextField { (alertTextField) in
@@ -112,30 +93,23 @@ class ToDoSmeListVC: UITableViewController {
     
     
     func saveItems(){
-        let encoder = PropertyListEncoder()
-        
+  
         do{
-            let data = try encoder.encode(self.listArray)
-            try data.write(to: self.dataFilePath!)
+            try self.context.save()
         }catch{
-            NSLog("Problem encoding item error \(error)")
+            NSLog("Problem saving context \(error)")
         }
         
         self.tableView.reloadData()
     }
     
     func loadItems(){
-        
-        if let data =  try? Data(contentsOf: dataFilePath!){
-            let decoder = PropertyListDecoder()
-            do{
-                listArray = try decoder.decode([Item].self, from: data)
-            }
-            catch{
-                NSLog("Problem decoding item erorr \(error)")
-            }
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do{
+        listArray = try self.context.fetch(request)
+        }catch{
+            NSLog("Prolem fetching request \(error)")
         }
-        
      }
     
 }
